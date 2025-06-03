@@ -1,4 +1,4 @@
-# RAG Chatbot — Retrieval-Augmented Generation Chatbot
+# EduAssist: RAG Chatbot — Retrieval-Augmented Generation Chatbot
 
 ## Overview
 

@@ -8,7 +8,7 @@ st.set_page_config(layout="wide")
 with open("styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-st.markdown('<div class="chat-title">🤖 My Smart RAG Chatbot</div>', unsafe_allow_html=True)
+st.markdown('<div class="chat-title">🤖 EduAssist Bot</div>', unsafe_allow_html=True)
 st.markdown('<div class="chat-wrapper">', unsafe_allow_html=True)
 
 # Wrapper for vertical centering
