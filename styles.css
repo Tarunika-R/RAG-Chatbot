@@ -1,0 +1,45 @@
+/* Center the chatbot container */
+.chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Bot response styling */
+.bot-response {
+    background-color: #f3f3f3;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Scrollable bot response area */
+.bot-scrollable {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fafafa;
+}
+
+/* Center the whole chatbot layout vertically and horizontally */
+.chat-wrapper {
+    max-width: 90%;
+    margin: 20px auto 0 auto; /* Top margin to push content up */
+    padding: 10px;
+}
+
+/* Chatbot title at the top center */
+.chat-title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #6f6b6b;
+}

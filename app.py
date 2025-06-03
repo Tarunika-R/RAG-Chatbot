@@ -1,50 +1,82 @@
 import streamlit as st
 import subprocess
 
-st.set_page_config(page_title="College Helpdesk Chatbot")
+# Must be first Streamlit command
+st.set_page_config(layout="wide")
 
-st.title("College Helpdesk Chatbot (Ollama CLI)")
+# Load custom styles
+with open("styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-if "history" not in st.session_state:
-    st.session_state.history = []
+st.markdown('<div class="chat-title">🤖 My Smart RAG Chatbot</div>', unsafe_allow_html=True)
+st.markdown('<div class="chat-wrapper">', unsafe_allow_html=True)
 
-def ask_ollama_cli(question):
+# Wrapper for vertical centering
+st.markdown('<div class="chat-wrapper">', unsafe_allow_html=True)
+
+# Initialize session state
+if 'messages' not in st.session_state:
+    st.session_state.messages = []
+
+if 'input_text' not in st.session_state:
+    st.session_state.input_text = ""
+
+def ask_ollama_cli(messages, max_context=5):
+    context_msgs = messages[-max_context:]
+    prompt = ""
+    for msg in context_msgs:
+        prefix = "You: " if msg['role'] == 'user' else "Bot: "
+        prompt += prefix + msg['content'] + "\n"
+    prompt += "Bot: "
+
     try:
         result = subprocess.run(
-            ['ollama', 'run', 'mistral', question],
+            ['ollama', 'run', 'mistral', prompt],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            timeout=120
+            timeout=120,
         )
-        # Decode output with utf-8 ignoring errors instead of using text=True
         stdout = result.stdout.decode('utf-8', errors='ignore').strip()
         stderr = result.stderr.decode('utf-8', errors='ignore').strip()
-        
-        if result.returncode == 0:
+
+        if result.returncode == 0 and stdout:
             return stdout
         else:
-            return f"Error: {stderr}"
+            return f"Error: {stderr or 'Unknown error'}"
     except subprocess.TimeoutExpired:
         return "Sorry, the model took too long to respond. Please try again."
     except Exception as e:
         return f"Exception: {str(e)}"
 
-def on_submit():
-    user_input = st.session_state.user_input
-    if user_input:
-        st.session_state.history.append({"role": "user", "content": user_input})
-        answer = ask_ollama_cli(user_input)
-        st.session_state.history.append({"role": "bot", "content": answer})
-        st.session_state.user_input = ""  # Clear input after submit
+# Layout: 2 columns
+col1, col2 = st.columns(2)
 
-def main():
-    st.text_input("Ask your question:", key="user_input", on_change=on_submit)
+# Left side: user input and history
+with col1:
+    st.markdown("### 💬 Your Question")
+    user_input = st.text_area("Type here:", value="", height=150, label_visibility="collapsed", key="input_text")
 
-    for chat in st.session_state.history:
-        if chat["role"] == "user":
-            st.markdown(f"**You:** {chat['content']}")
-        else:
-            st.markdown(f"**Bot:** {chat['content']}")
+    if st.button("Send"):
+        user_input = user_input.strip()
+        if user_input:
+            st.session_state.messages.append({"role": "user", "content": user_input})
+            with st.spinner("Bot is typing..."):
+                bot_reply = ask_ollama_cli(st.session_state.messages)
+            st.session_state.messages.append({"role": "bot", "content": bot_reply})
+            st.rerun()
 
-if __name__ == "__main__":
-    main()
+    st.markdown("### 🕘 Chat History")
+    with st.container():
+        for msg in st.session_state.messages:
+            if msg["role"] == "user":
+                st.markdown(f"**🧑 You:** {msg['content']}", unsafe_allow_html=True)
+
+# Right side: bot responses only
+with col2:
+    st.markdown("### 🤖 Bot Replies")
+    with st.container():
+        for msg in st.session_state.messages:
+            if msg["role"] == "bot":
+                st.markdown(f"<div class='bot-response'>{msg['content']}</div>", unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
